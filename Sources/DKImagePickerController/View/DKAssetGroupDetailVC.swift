@@ -42,6 +42,7 @@ open class DKAssetGroupDetailVC: UIViewController,
 
     public var selectedGroupId: String?
     public weak var imagePickerController: DKImagePickerController?
+    public var collectionViewDidLoadCompletion:(()->Void)?
     internal var collectionView: UICollectionView?
     private var groupListVC: DKAssetGroupListVC?
     private var selectGroupButton: UIButton?
@@ -130,6 +131,10 @@ open class DKAssetGroupDetailVC: UIViewController,
         let groupListVC = DKAssetGroupListVC(imagePickerController: imagePickerController,
                                               defaultAssetGroup: imagePickerController.defaultAssetGroup,
                                               selectedGroupDidChangeBlock: { [unowned self] (groupId) in
+                                                guard groupId != nil else {
+                                                    self.collectionViewDidLoadCompletion?()
+                                                    return
+                                                }
                                                 self.selectAssetGroup(groupId)
         })
         groupListVC.showsEmptyAlbums = imagePickerController.showsEmptyAlbums
@@ -204,6 +209,14 @@ open class DKAssetGroupDetailVC: UIViewController,
         self.selectedGroupId = groupId
         self.updateTitleView()
         self.collectionView?.reloadData()
+        
+        self.collectionView?.performBatchUpdates(nil, completion: { (_) in
+            if let  count = self.collectionView?.numberOfItems(inSection: 0) {
+                let lastItemIndex = IndexPath(item: count - 1, section: 0)
+                self.collectionView?.scrollToItem(at: lastItemIndex, at: .bottom, animated: false)
+                self.collectionViewDidLoadCompletion?()
+            }
+        })
     }
 
 	open func updateTitleView() {

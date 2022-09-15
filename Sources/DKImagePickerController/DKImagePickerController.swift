@@ -124,7 +124,10 @@ open class DKImagePickerController: DKUINavigationController, DKImageBaseManager
     
     /// The block is executed when the number of the selected assets is changed.
     @objc public var selectedChanged: (() -> Void)?
-
+    
+    /// The block is executed when the collection view did load completely on DKAssetGroupDetailVC
+    @objc public var collectionViewDidLoadCompletion: (() -> Void)?
+    
     /// Colors applied to the permission view when access needs to be granted by the user
     @objc public var permissionViewColors = DKPermissionViewColors()
     
@@ -224,6 +227,13 @@ open class DKImagePickerController: DKUINavigationController, DKImageBaseManager
         }
         
         self.rootVC?.navigationItem.hidesBackButton = true
+        
+        if let detailVC = self.rootVC as? DKAssetGroupDetailVC {
+            detailVC.collectionViewDidLoadCompletion = { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.collectionViewDidLoadCompletion?()
+            }
+        }
         
         return {}
     }()

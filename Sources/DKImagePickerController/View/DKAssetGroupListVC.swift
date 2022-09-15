@@ -238,9 +238,12 @@ class DKAssetGroupListVC: UITableViewController, DKImageGroupDataManagerObserver
 
             strongSelf.groups = groups
             strongSelf.selectedGroup = strongSelf.defaultAssetGroupOfAppropriate()
-            if let selectedGroup = strongSelf.selectedGroup,
-                let displayGroups = strongSelf.displayGroups,
-                let row = displayGroups.firstIndex(of: selectedGroup) {
+            guard let selectedGroup = strongSelf.selectedGroup else {
+                strongSelf.selectedGroupDidChangeBlock?(strongSelf.selectedGroup)
+                return
+            }
+            if let displayGroups = strongSelf.displayGroups,
+               let row = displayGroups.firstIndex(of: selectedGroup) {
                 strongSelf.tableView.selectRow(at: IndexPath(row: row, section: 0), animated: false, scrollPosition: .none)
                 strongSelf.selectedGroupDidChangeBlock?(strongSelf.selectedGroup)
             }
